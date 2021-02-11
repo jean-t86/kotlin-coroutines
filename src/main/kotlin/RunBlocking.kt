@@ -13,3 +13,16 @@ fun main() {
         delay(1000L);
     }
 }
+
+fun idiomaticUseCase() = runBlocking<Unit> {
+    // runBlocking here is used as an adapter to wrap the function's code in a coroutine.
+    // This is helpful to use with main() or for writing unit tests, e.g.
+    /**
+     * class MyTest {
+     *  @Test
+     *  fun testMySuspendingFunction() = runBlocking {
+     *      ...
+     *  }
+     * }
+     */
+}
