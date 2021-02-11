@@ -119,3 +119,49 @@ fun main() = runBlocking<Unit> {
     // launched in its scope to complete.
 }
 ```
+
+### coroutineScope
+
+The `coroutineScope` method is yet another coroutine builder. It is most similar to 
+`runBlocking` with the difference that instead of blocking code execution it suspends it.
+
+When a suspending function is encountered within `coroutineScope`, it suspends code 
+execution, releasing the underlying thread for other usages.
+
+> Because of that difference, `runBlocking` is a regular function and `coroutineScope`
+is a suspending function.
+
+```kotlin
+fun main() = runBlocking {
+    launch {
+        // Because this coroutine executes within runBlocking, execution will stop here for 
+        // 200ms, and will then output the message to the console.
+        delay(200L)
+        println("Task from runBlocking")
+    }
+    
+    coroutineScope {
+        launch {
+            // Because coroutineScope allows coroutines to suspend, the thread will be
+            // freed to continue execution to the next delay call, i.e. delay(100L).
+            delay(500L)
+            println("Task from nested launch")
+        }
+        
+        // This code will execute while the nested coroutine delays for 500ms.
+        delay(100L)
+        println("Task from coroutineScope")
+    }
+    
+    // This line will not execute until all coroutines have completed, i.e. runBlocking.launch
+    // and runBlocking.coroutineScope.launch
+    println("Coroutine scope is over")
+}
+```
+The output of this program will be
+```
+Task from coroutineScope
+Task from runBlocking
+Task from nested launch
+Coroutine scope is over
+```
