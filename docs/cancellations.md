@@ -79,3 +79,36 @@ fun main() = runBlocking<Unit> {
 ```
 Another way to check for cancellation is to use the method `yield()`, which checks whether
 the coroutine has been cancelled, and terminates the execution if so.
+
+## Closing resources with finally
+
+Cancellable suspending functions throw `CancellationException`. This exception can be caught in
+the usual way using `try{ } catch{ } finally{ }`.
+
+```kotlin
+fun main() = runBlocking {
+    val job = launch {
+        try {
+            repeat(3) { i-> 
+                println("job: I'm sleeping $i...")
+                delay(500L)
+            }
+        } finally {
+            println("job: I'm running finally.")
+        }
+    }
+    delay(1300L)
+    println("main: I'm tired of waiting!")
+    job.cancelAndJoin() // cancels the job and waits for its completion
+    println("main: Now I can quit.")
+}
+```
+The output will be:
+```
+job: I'm sleeping 0...
+job: I'm sleeping 1...
+job: I'm sleeping 2...
+main: I'm tired of waiting!
+job: I'm running finally.
+main: Now I can quit.
+```
