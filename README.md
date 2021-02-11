@@ -92,3 +92,30 @@ fun main() = runBlocking {
     job.join() // main execution flow will block until child coroutine completes
 }
 ```
+
+### Coroutine scope
+
+Every coroutine builder, including `runBlocking`, adds an instance of `CoroutineScope` to the 
+scope of its code block.
+
+We can launch coroutines within that scope. The advantage is that we do not have to use
+`job.join()` in order to wait for a child coroutine to complete. This is because an outer coroutine
+(runBlocking for example) does NOT complete until all the coroutines launched in its scope 
+completes.
+
+In other words, a parent coroutine waits for all its children coroutines to complete before
+completing. This is an example of structured concurrency where:
+- there are clear entry and exit points (the code block), and
+- all spawned threads are ensured to complete before exiting/ continuing.
+
+```kotlin
+fun main() = runBlocking<Unit> {
+    launch {
+        delay(1000L)
+        println("World")
+    }
+    println("Hello")
+    // There is no need to delay the main coroutine since it will wait for its child coroutine
+    // launched in its scope to complete.
+}
+```
