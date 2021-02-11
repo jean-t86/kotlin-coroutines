@@ -48,7 +48,7 @@ They check for cancellation of coroutine and throw `CancellationException` when 
 However, if a coroutine is working in a computation and does not check for cancellation, then
 it cannot be cancelled.
 
-For example, a coroutine cannot be cancelled if a while loop is executing. It can, however,
+For example, a coroutine cannot be cancelled if a `while` loop is executing. It can, however,
 check for cancellation and prematurely exit the loop.
 
 ```kotlin
@@ -147,7 +147,9 @@ fun main() = runBlocking {
 A `try{} catch{}` needs to be used because withTimeout is used right inside the main function.
 If called within a launched coroutine code block, the timeout error will be quiet. 
 
-This is because `TimeoutCancellationException` is a sublass of `CancellationException`. 
+This is because `TimeoutCancellationException` is a subclass of `CancellationException`. 
 `CancellationException` is considered to be a normal reason for coroutine completion.
 
 `withTimeoutOrNull` can be used if we do not want an exception to be thrown on a timeout.
+
+## Asynchronous timeouts and resources
