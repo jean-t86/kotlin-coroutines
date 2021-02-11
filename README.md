@@ -169,3 +169,7 @@ Task from runBlocking
 Task from nested launch
 Coroutine scope is over
 ```
+
+> Observe that "Task from runBlocking" executes even though the `coroutineScope` has not finished
+executing yet. This demonstrates the main difference between `coroutineScope` and `runBlocking`.
+
