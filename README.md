@@ -97,7 +97,7 @@ fun main() = runBlocking {
 }
 ```
 
-### Coroutine scope
+### Coroutine scopes
 
 Every coroutine builder, including `runBlocking`, adds an instance of `CoroutineScope` to the 
 scope of its code block.
