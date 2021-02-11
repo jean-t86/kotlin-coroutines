@@ -1,6 +1,6 @@
 # Kotlin Coroutines
 
-Below are notes from the official [reference documentation for Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines/basics.html)
+> Below are personal notes from going through the official [reference documentation for Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines/basics.html)
 
 Coroutines are essentially light-weight threads.
 
