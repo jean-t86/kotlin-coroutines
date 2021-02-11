@@ -2,7 +2,7 @@ package cancellations
 
 import kotlinx.coroutines.*
 
-fun main() = runBlocking<Unit> {
+fun main() = runBlocking {
     val startTime = System.currentTimeMillis()
     val job = launch(Dispatchers.Default) {
         var nextPrimeTime = startTime

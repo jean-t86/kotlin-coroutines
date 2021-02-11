@@ -112,3 +112,42 @@ main: I'm tired of waiting!
 job: I'm running finally.
 main: Now I can quit.
 ```
+
+## Run non-cancellable block
+
+If a coroutine block is cancelled, and a suspend function is called in the `finally` close
+of an `try{} catch{} finally{}` expression, another `CancellationException` will be thrown.
+
+This is usually not a problem since there is rarely a need to call a suspend function
+in a `finally` close. However, if needed, we can wrap the suspend function call in 
+`withContext(NonCancellable) {...}`
+
+## Timeout
+
+It is possible to cancel the execution of a coroutine based on a timeout. For example, if
+a coroutine takes too long to execute, we may want to cancel the operation and move on.
+
+This is achieved by using `withTimeout() {...}`
+
+```kotlin
+fun main() = runBlocking {
+    try {
+        withTimeout(1300L) {
+            repeat(1000) { i ->
+                println("I'm sleeping $i...")
+                delay(500L)
+            }
+        }
+    } catch (e: TimeoutCancellationException) {
+        println(e.message)
+    }
+}
+```
+
+A `try{} catch{}` needs to be used because withTimeout is used right inside the main function.
+If called within a launched coroutine code block, the timeout error will be quiet. 
+
+This is because `TimeoutCancellationException` is a sublass of `CancellationException`. 
+`CancellationException` is considered to be a normal reason for coroutine completion.
+
+`withTimeoutOrNull` can be used if we do not want an exception to be thrown on a timeout.
