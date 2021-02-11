@@ -55,11 +55,15 @@ World
 
 ### runBlocking
 
-runBlocking is another coroutine builder. It's idiomatic use case is to act as an adapter to
+`runBlocking` is another coroutine builder. Its idiomatic use case is to act as an adapter to
 wrap either a `main()` or unit test function's code as a coroutine.
 
-Code within a runBlocking coroutine will block the thread on which it is executing, i.e. suspending
-functions will block instead of suspend the coroutine's execution.
+Code within a `runBlocking` coroutine will block the thread on which it is executing until
+all coroutines within `runBlocking` completes, i.e. suspending functions will act as regular
+function calls.
+
+However, `runBlocking` contains a nested coroutine, the suspending function will suspend
+and not block.
 
 ```kotlin
 fun main() = runBlocking<Unit> {
