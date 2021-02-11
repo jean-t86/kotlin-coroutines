@@ -27,7 +27,7 @@ GlobalScope.launch is a coroutine builder, i.e. it provides a method that accept
 that represents the coroutine. Within that coroutine, suspending functions can be called.
 
 ```kotlin
-main() {
+fun main() {
     // Launches the execution of a Coroutine in the GlobalScope.
     // The code block is the actual coroutine, and suspending functions can be
     // called within the block, e.g. delay(1000L)
@@ -70,5 +70,25 @@ class MyTest {
     fun myUnitTest() = runBlocking<Unit> {
         // A coroutine code block 
     }
+}
+```
+
+### job.join()
+
+The GlobalScope.launch method returns an object of type `Job`. This object can be used to 
+manage the execution of the coroutine. 
+
+In the example below, `.join()` is used to wait for the coroutine to complete before 
+continuing execution, i.e. it joins the background execution flow to that of the main 
+execution flow.
+
+```kotlin
+fun main() = runBlocking {
+    val job = GlobalScope.launch {
+        delay(1000L)
+        println("World")
+    }
+    println("Hello,")
+    job.join() // main execution flow will block until child coroutine completes
 }
 ```
