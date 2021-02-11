@@ -21,7 +21,10 @@ is suspended.
 Suspending functions can only be called from a coroutine or another 
 suspending function.
 
-## Example
+### GlobalScope.launch
+
+GlobalScope.launch is a coroutine builder, i.e. it provides a method that accepts a block of code
+that represents the coroutine. Within that coroutine, suspending functions can be called.
 
 ```kotlin
 main() {
@@ -48,4 +51,24 @@ The output of this program will be
 ```
 Hello,
 World
+```
+
+### runBlocking
+
+runBlocking is another coroutine builder. It's idiomatic use case is to act as an adapter to
+wrap either a `main()` or unit test function's code as a coroutine.
+
+Code within a runBlocking coroutine will block the thread on which it is executing, i.e. suspending
+functions will block instead of suspend the coroutine's execution.
+
+```kotlin
+fun main() = runBlocking<Unit> {
+    // A coroutine code block
+}
+
+class MyTest {
+    fun myUnitTest() = runBlocking<Unit> {
+        // A coroutine code block 
+    }
+}
 ```
