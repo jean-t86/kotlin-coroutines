@@ -5,6 +5,7 @@
 * [Concurrent using async](#Concurrent-using-async)
 * [Lazily started async](#lazily-started-async)
 * [Async-style functions](#async-style-functions)
+* [Structured concurrency with async](#structured-concurrency-with-async)
 
 ## Sequential by default
 
@@ -103,3 +104,28 @@ fun main() {
 > asynchronous (here meaning concurrent) execution of their action 
 > with the invoking code.
 > `await`, however, is a suspending function.
+
+## Structured concurrency with async
+
+When using `GlobalScope.async`, we run the suspending functions in the global scope. This
+becomes problematic if, for example, the calling coroutine throws an error while the 
+suspending function is running in the background.
+
+In such a case, the coroutine, and all its children coroutines running in its scope, will
+can cancelled, and the program execution will move on. However, the suspending function in
+the background will continue execution because it is in the global scope.
+
+We can solve this by using `coroutineScope` to inherit the scope from the calling coroutine.
+
+```kotlin
+suspend fun concurrentSum(): Int = coroutineScope {
+    val one = async { doSomethingUsefulOne() }
+    val two = async { doSomethingUsefulTwo() }
+    one.await() + two.await()
+}
+
+val time = measureTimeMillis {
+    println("The answer is ${concurrentSum()}")
+}
+println("Completed in $time ms")
+```
