@@ -1,5 +1,13 @@
 # Cancellations and Timeouts
 
+## Table of Contents
+* [Cancelling coroutine execution](#cancelling-coroutine-execution)
+* [Cooperation cancellation](#cooperation-cancellation)
+* [Closing resources with finally](#closing-resources-with-finally)
+* [Run non-cancellable block](#run-non-cancellable-block)
+* [Timeouts](#timeouts)
+* [Asynchronous timeouts and resources](#asynchronous-timeouts-and-resources)
+
 ## Cancelling coroutine execution
 
 The `launch` function returns a `Job` object that can be used to cancel the execution of a 
@@ -122,7 +130,7 @@ This is usually not a problem since there is rarely a need to call a suspend fun
 in a `finally` close. However, if needed, we can wrap the suspend function call in 
 `withContext(NonCancellable) {...}`
 
-## Timeout
+## Timeouts
 
 It is possible to cancel the execution of a coroutine based on a timeout. For example, if
 a coroutine takes too long to execute, we may want to cancel the operation and move on.

@@ -1,5 +1,13 @@
 # Coroutine Basics
 
+## Table of Contents
+* [Suspending functions](#suspending-functions)
+* [GlobalScope.launch](#globalScope.launch)
+* [runBlocking](#runblocking)
+* [Wait for jobs](#wait-for-jobs)
+* [Coroutine scopes](#coroutine-scopes)
+* [coroutineScope](#coroutinescope)
+
 Coroutines are essentially light-weight threads.
 
 They execute within a CoroutineScope. For example `GlobalScope.launch` will
@@ -75,7 +83,7 @@ class MyTest {
 }
 ```
 
-### job.join()
+### Wait for jobs
 
 The GlobalScope.launch method returns an object of type `Job`. This object can be used to
 manage the execution of the coroutine.
