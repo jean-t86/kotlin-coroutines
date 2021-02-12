@@ -4,6 +4,7 @@
 * [Sequential by default](#sequential-by-default)
 * [Concurrent using async](#Concurrent-using-async)
 * [Lazily started async](#lazily-started-async)
+* [Async-style functions](#async-style-functions)
 
 ## Sequential by default
 
@@ -63,3 +64,42 @@ val time = measureTimeMillis {
 }
 println("Completed in $time ms")
 ```
+
+## Async-style functions
+
+A suspending function can have its code block wrapped in a `GlobalScope.async` method call
+in order to make the whole function async. In that case, await NEEDS to be used to obtain
+the result of the function call.
+
+```kotlin
+// The result type of somethingUsefulOneAsync is Deferred<Int>
+fun somethingUsefulOneAsync() = GlobalScope.async {
+    doSomethingUsefulOne()
+}
+
+// The result type of somethingUsefulTwoAsync is Deferred<Int>
+fun somethingUsefulTwoAsync() = GlobalScope.async {
+    doSomethingUsefulTwo()
+}
+
+// note that we don't have `runBlocking` to the right of `main` in this example
+fun main() {
+    val time = measureTimeMillis {
+        // we can initiate async actions outside of a coroutine
+        val one = somethingUsefulOneAsync()
+        val two = somethingUsefulTwoAsync()
+        // but waiting for a result must involve either suspending or blocking.
+        // here we use `runBlocking { ... }` to block the main thread while waiting for the result
+        runBlocking {
+            println("The answer is ${one.await() + two.await()}")
+        }
+    }
+    println("Completed in $time ms")
+}
+```
+
+> Note that these xxxAsync functions are not suspending functions. 
+> They can be used from anywhere. However, their use always implies 
+> asynchronous (here meaning concurrent) execution of their action 
+> with the invoking code.
+> `await`, however, is a suspending function.
