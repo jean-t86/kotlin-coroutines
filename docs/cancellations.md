@@ -153,3 +153,9 @@ This is because `TimeoutCancellationException` is a subclass of `CancellationExc
 `withTimeoutOrNull` can be used if we do not want an exception to be thrown on a timeout.
 
 ## Asynchronous timeouts and resources
+
+The timeout event in withTimeout is asynchronous with respect to the code running in its
+block, i.e. it can happen at any time in the code block.
+
+Therefore, if a resource that needs to be closed is acquired in the code block, it can be 
+released in the `finally` close of a `try{} catch{}`.
