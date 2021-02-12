@@ -5,3 +5,4 @@
 ## Table of Contents
 * [Basics](./docs/basics.md)
 * [Cancellations and timeouts](./docs/cancellations.md)
+* [Composing suspending functions](./docs/suspending-functions.md)
