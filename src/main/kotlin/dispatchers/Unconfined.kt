@@ -13,7 +13,7 @@ fun main() = runBlocking<Unit> {
         println("Unconfined      : I'm working in thread ${Thread.currentThread().name}")
         // Once it comes back from the first suspending function, the thread will be that of the one used within the
         // suspending function. In that case delay uses DefaultExecutor.
-        delay(500)
+        delay(50000)
         println("Unconfined      : After delay in thread ${Thread.currentThread().name}")
     }
 

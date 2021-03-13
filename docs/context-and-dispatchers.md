@@ -3,6 +3,7 @@
 ## Table of Contents
 * [Dispatchers and threads](#dispatchers-and-threads)
 * [Unconfined vs confined dispatcher](#unconfined-vs-confined-dispatcher)
+* [Debugging coroutines and threads](#debugging-coroutines-and-threads)
 
 Coroutines always execute in some context represented by a value of the `CoroutineContext` type.
 It is made up of various elements, mainly Job and a dispatcher.
@@ -100,3 +101,56 @@ main runBlocking: After delay in thread main @coroutine#3
 So, the coroutine with the context inherited from `runBlocking {...}` continues to execute in the
 `main` thread, while the unconfined one resumes in the default executor thread that the `delay` 
 function is using.
+
+## Debugging coroutines and threads
+
+Coroutines can suspend on one thread and resume on another, e.g. when using Dispatchers.Unconfined.
+
+Even with a single-threaded dispatcher it might be hard to figure out what the coroutine was doing,
+where, and when if you don't have special tooling.
+
+For example, say you run a coroutine with a delay suspending function. Running it on the main thread
+is main safe because `delay` internally switches to another thread while the coroutine is suspended
+on the main thread. It is important to be able to track where what work is happening.
+
+### Debugging with IDEA
+
+The **Debug** tool window contains the **Coroutines** tab. This tab contains information about both 
+currently running and suspended coroutines. 
+> The coroutines are grouped by the dispatchers they are running on.
+
+![img.png](img.png)
+
+### Debugging using logging
+
+Another approach to debugging applications with threads without Coroutine Debugger is to print the 
+thread name in the log file on each log statement. This feature is universally supported by logging
+frameworks. 
+
+When using coroutines, the thread name alone does not give much of a context, so `kotlinx.coroutines`
+includes debugging facilities to make it easier.
+
+Run the following code with `-Dkotlinx.coroutines.debug` JVM option:
+```kotlin
+import kotlinx.coroutines.*
+
+fun log(msg: String) = println("[${Thread.currentThread().name}] $msg")
+
+fun main() = runBlocking<Unit> {
+    val a = async {
+        log("I'm computing a piece of the answer")
+        6
+    }
+    val b = async {
+        log("I'm computing another piece of the answer")
+        7
+    }
+    log("The answer is ${a.await() * b.await()}")    
+}
+```
+The output of this program will be
+```
+[main @coroutine#2] I'm computing a piece of the answer
+[main @coroutine#3] I'm computing another piece of the answer
+[main @coroutine#1] The answer is 42
+```
