@@ -5,6 +5,9 @@
 * [Unconfined vs confined dispatcher](#unconfined-vs-confined-dispatcher)
 * [Debugging coroutines and threads](#debugging-coroutines-and-threads)
 * [Jumping between threads](#jumping-between-threads)
+* [Job in the context](#job-in-the-context)
+* [Children of a coroutine](#children-of-a-coroutine)
+* [Parental responsibilities](#parental-responsibilities)
 
 Coroutines always execute in some context represented by a value of the `CoroutineContext` type.
 It is made up of various elements, mainly Job and a dispatcher.
@@ -179,4 +182,50 @@ The output of this program will be
 [Ctx1 @coroutine#1] Started in ctx1
 [Ctx2 @coroutine#1] Working in ctx2
 [Ctx1 @coroutine#1] Back to ctx1
+```
+
+## Job in the context
+
+The coroutine's `Job`is part of its context. It can be retrieved using `coroutineContext[Job]`, e.g.
+```kotlin
+fun main() = runBlocking<Unit> {
+    println("My job is ${coroutineContext[Job]}")    
+}
+```
+
+## Children of a coroutine
+
+When a coroutine is launched in the `CoroutineScope` of another coroutine, it inherits its context via
+`CoroutineScope.CoroutineContext`. The `Job` of the newly launched coroutine becomes the child of the 
+coroutine that launched it, i.e. the parent coroutine. 
+> When the parent coroutine is cancelled, all its children are recursively cancelled too.
+
+However, when `GlobalScope` is used to launch a coroutine, there are no parents for the job of 
+the new coroutine. It is therefore not tied to the scope it was launched from and operates independently.
+
+## Parental responsibilities
+
+A parent coroutine always waits for completion of all its children. A parent does not have to explicitly
+track all the children it launches, and it does not have to use `Job.join` to wait for them at the end:
+```kotlin
+// launch a coroutine to process some kind of incoming request
+val request = launch {
+    repeat(3) { i -> // launch a few children jobs
+        launch  {
+            delay((i + 1) * 200L) // variable delay 200ms, 400ms, 600ms
+            println("Coroutine $i is done")
+        }
+    }
+    println("request: I'm done and I don't explicitly join my children that are still active")
+}
+request.join() // wait for completion of the request, including all its children
+println("Now processing of the request is complete")
+```
+The result is going to be:
+```
+request: I'm done and I don't explicitly join my children that are still active
+Coroutine 0 is done
+Coroutine 1 is done
+Coroutine 2 is done
+Now processing of the request is complete
 ```
