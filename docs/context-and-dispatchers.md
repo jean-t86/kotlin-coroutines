@@ -4,6 +4,7 @@
 * [Dispatchers and threads](#dispatchers-and-threads)
 * [Unconfined vs confined dispatcher](#unconfined-vs-confined-dispatcher)
 * [Debugging coroutines and threads](#debugging-coroutines-and-threads)
+* [Jumping between threads](#jumping-between-threads)
 
 Coroutines always execute in some context represented by a value of the `CoroutineContext` type.
 It is made up of various elements, mainly Job and a dispatcher.
@@ -153,4 +154,29 @@ The output of this program will be
 [main @coroutine#2] I'm computing a piece of the answer
 [main @coroutine#3] I'm computing another piece of the answer
 [main @coroutine#1] The answer is 42
+```
+
+## Jumping between threads
+```kotlin
+    newSingleThreadContext("Ctx1").use { ctx1 ->
+        newSingleThreadContext("Ctx2").use { ctx2 ->
+            runBlocking(ctx1) {
+                log("Started in ctx1")
+                withContext(ctx2) {
+                    log("Working in ctx2")
+                }
+                log("Back to ctx1")
+            }
+        }
+    }    
+```
+
+The code above demonstrates how runBlocking can be used with an explicit context. It also shows how
+withContext can be used to switch context while still executing within the same coroutine.
+
+The output of this program will be
+```
+[Ctx1 @coroutine#1] Started in ctx1
+[Ctx2 @coroutine#1] Working in ctx2
+[Ctx1 @coroutine#1] Back to ctx1
 ```
