@@ -8,6 +8,8 @@
 * [Job in the context](#job-in-the-context)
 * [Children of a coroutine](#children-of-a-coroutine)
 * [Parental responsibilities](#parental-responsibilities)
+* [Naming coroutines for debugging](#naming-coroutines-for-debugging)
+* [Combining context elements](#combining-context-elements)
 
 Coroutines always execute in some context represented by a value of the `CoroutineContext` type.
 It is made up of various elements, mainly Job and a dispatcher.
@@ -228,4 +230,38 @@ Coroutine 0 is done
 Coroutine 1 is done
 Coroutine 2 is done
 Now processing of the request is complete
+```
+
+## Naming coroutines for debugging
+```kotlin
+log("Started main coroutine")
+// run two background value computations
+val v1 = async(CoroutineName("v1coroutine")) {
+    delay(500)
+    log("Computing v1")
+    252
+}
+val v2 = async(CoroutineName("v2coroutine")) {
+    delay(1000)
+    log("Computing v2")
+    6
+}
+log("The answer for v1 / v2 = ${v1.await() / v2.await()}")
+```
+The result is going to be:
+```
+[main @main#1] Started main coroutine
+[main @v1coroutine#2] Computing v1
+[main @v2coroutine#3] Computing v2
+[main @main#1] The answer for v1 / v2 = 42
+```
+
+## Combining context elements
+
+It is possible to use the `+` operator to define multiple elements of a coroutine context, e.g.
+
+```kotlin
+launch(Dispatchers.Default + CoroutineName("test")) {
+    println("I'm working in thread ${Thread.currentThread().name}")
+}
 ```
